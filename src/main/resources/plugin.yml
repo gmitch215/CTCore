@@ -1,3 +1,11 @@
 name: MCS8-Core
 main: me.gamercoder215.mcsurvivors.MCSCore
 version: ${project.version}
+api-version: 1.19
+load: STARTUP
+author: GamerCoder
+description: ${project.description}
+permissions:
+  mcsurvivors.admin:
+    description: Allows access to all MCSurvivors commands.
+    default: op
