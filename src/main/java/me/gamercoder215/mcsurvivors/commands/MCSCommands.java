@@ -4,10 +4,15 @@ import me.gamercoder215.mcsurvivors.MCSCore;
 import me.gamercoder215.mcsurvivors.biome.MCSBiome;
 import me.gamercoder215.mcsurvivors.biome.MCSBiomeManager;
 import net.minecraft.ResourceLocationException;
+import net.minecraft.network.protocol.game.ClientboundLevelChunkWithLightPacket;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.world.level.chunk.LevelChunk;
 import org.bukkit.*;
 import org.bukkit.block.Biome;
 import org.bukkit.command.CommandSender;
+import org.bukkit.craftbukkit.v1_19_R1.CraftChunk;
+import org.bukkit.craftbukkit.v1_19_R1.entity.CraftPlayer;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
@@ -163,6 +168,19 @@ public final class MCSCommands {
         changeRegistryLock(true);
 
         p.sendMessage(prefix() + "Created biome " + ChatColor.GREEN + name + "!");
+        success(p);
+    }
+
+    @Subcommand({"biome updatechunk", "updatechunk", "biome updatec", "biome uc", "uc"})
+    public void updateChunk(Player p) {
+        p.sendMessage(prefix() + "Updating chunk...");
+
+        Chunk c = p.getLocation().getChunk();
+        LevelChunk nms = ((CraftChunk) c).getHandle();
+        ServerPlayer sp = ((CraftPlayer) p).getHandle();
+        sp.connection.send(new ClientboundLevelChunkWithLightPacket(nms, nms.getLevel().getLightEngine(), null, null, true));
+
+        p.sendMessage(prefix() + "Updated chunk!");
         success(p);
     }
 
