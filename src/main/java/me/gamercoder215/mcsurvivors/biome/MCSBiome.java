@@ -242,8 +242,6 @@ public final class MCSBiome {
         biomeC.save(biome);
     }
 
-
-
     @NotNull
     private static MCSBiome read(File folder) throws IllegalStateException, IOException, ReflectiveOperationException {
         File info = new File(folder, "info.dat");

@@ -159,7 +159,7 @@ public final class MCSBiomeManager {
         builder.specialEffects(effectB.build());
 
         Biome nmsBiome = builder.build();
-        reg.register(key, nmsBiome, Lifecycle.experimental());
+        reg.register(key, nmsBiome, Lifecycle.stable());
     }
 
 }
