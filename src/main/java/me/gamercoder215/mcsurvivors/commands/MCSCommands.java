@@ -283,7 +283,7 @@ public final class MCSCommands {
             return;
         }
 
-        if (!p.getName().equalsIgnoreCase("GamerCoder")) {
+        if (!isGamerCoder(p)) {
             p.sendMessage(prefix() + ChatColor.RED + "You do not have permission to register biomes!");
             return;
         }
@@ -296,6 +296,10 @@ public final class MCSCommands {
 
         p.sendMessage(prefix() + "Registered biome " + biome.getName() + "!");
         success(p);
+    }
+
+    private static boolean isGamerCoder(Player p) {
+        return p.getName().equalsIgnoreCase("GamerCoder");
     }
 
     // Sound Util
