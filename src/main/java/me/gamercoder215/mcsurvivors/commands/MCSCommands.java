@@ -19,6 +19,7 @@ import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
 import org.jetbrains.annotations.NotNull;
 import revxrsal.commands.annotation.*;
+import revxrsal.commands.annotation.Optional;
 import revxrsal.commands.autocomplete.SuggestionProvider;
 import revxrsal.commands.bukkit.BukkitCommandHandler;
 import revxrsal.commands.bukkit.annotation.CommandPermission;
@@ -135,11 +136,11 @@ public final class MCSCommands {
 
     @Subcommand({"createbiome", "createb", "cbiome", "biome create"})
     public void createBiome(Player p, String name,
-                            @Default(DEFAULT_WATER_COLOR) Color waterColor,
-                            @Default(DEFAULT_FOG_COLOR) Color fogColor,
-                            @Default(DEFAULT_SKY_COLOR) Color skyColor,
-                            @Default(DEFAULT_GRASS_COLOR) Color grassColor,
-                            @Default(DEFAULT_FOLIAGE_COLOR) Color foliageColor,
+                            @Optional(def = DEFAULT_WATER_COLOR) Color waterColor,
+                            @Optional(def = DEFAULT_FOG_COLOR) Color fogColor,
+                            @Optional(def = DEFAULT_SKY_COLOR) Color skyColor,
+                            @Optional(def = DEFAULT_GRASS_COLOR) Color grassColor,
+                            @Optional(def = DEFAULT_FOLIAGE_COLOR) Color foliageColor,
                             @Switch boolean frozen) {
 
         if (MCSBiome.byName(name) != null) {
@@ -211,7 +212,7 @@ public final class MCSCommands {
     }
 
     @Subcommand({"biome delete", "biome remove", "removebiome", "deletebiome"})
-    public void deleteBiome(CommandSender sender, MCSBiome biome, @Default("") String confirm) {
+    public void deleteBiome(CommandSender sender, MCSBiome biome, @Optional(def = "") String confirm) {
         if (biome == null) {
             sender.sendMessage(prefix() + ChatColor.RED + "That biome does not exist!");
             return;
