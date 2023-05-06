@@ -39,7 +39,7 @@ public final class MCSCore extends JavaPlugin implements Listener {
     @NotNull
     public static String prefix() {
         return ChatColor.translateAlternateColorCodes('&',
-                "&6[&eMCS-8&6]&r &a");
+                "&6[&eMCS-9&6]&r &a");
     }
 
     @NotNull
