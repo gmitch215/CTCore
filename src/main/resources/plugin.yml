@@ -1,4 +1,4 @@
-name: MCS8-Core
+name: MCS${project.version}-Core
 main: me.gamercoder215.mcsurvivors.MCSCore
 version: ${project.version}
 api-version: 1.19
