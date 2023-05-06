@@ -6,6 +6,7 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.core.Holder;
 import net.minecraft.core.MappedRegistry;
 import net.minecraft.core.Registry;
+import net.minecraft.core.registries.Registries;
 import net.minecraft.network.protocol.game.ClientboundLevelChunkWithLightPacket;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.server.dedicated.DedicatedServer;
@@ -18,18 +19,15 @@ import net.minecraft.world.level.chunk.LevelChunk;
 import org.bukkit.Bukkit;
 import org.bukkit.Chunk;
 import org.bukkit.Location;
-import org.bukkit.World;
-import org.bukkit.craftbukkit.v1_19_R1.CraftChunk;
-import org.bukkit.craftbukkit.v1_19_R1.CraftServer;
-import org.bukkit.craftbukkit.v1_19_R1.CraftWorld;
-import org.bukkit.craftbukkit.v1_19_R1.entity.CraftPlayer;
+import org.bukkit.craftbukkit.v1_19_R3.CraftChunk;
+import org.bukkit.craftbukkit.v1_19_R3.CraftServer;
+import org.bukkit.craftbukkit.v1_19_R3.CraftWorld;
+import org.bukkit.craftbukkit.v1_19_R3.entity.CraftPlayer;
 import org.bukkit.entity.Player;
 import org.bukkit.plugin.java.JavaPlugin;
-import org.bukkit.util.BoundingBox;
 import org.jetbrains.annotations.NotNull;
 
 import java.lang.reflect.Field;
-import java.util.IdentityHashMap;
 
 import static me.gamercoder215.mcsurvivors.MCSCore.getPluginLogger;
 import static me.gamercoder215.mcsurvivors.MCSCore.print;
@@ -37,7 +35,7 @@ import static me.gamercoder215.mcsurvivors.MCSCore.print;
 public final class MCSBiomeManager {
 
     public static void changeRegistryLock(boolean isLocked) {
-        MappedRegistry<Biome> materials = getRegistry(Registry.BIOME_REGISTRY);
+        MappedRegistry<Biome> materials = getRegistry(Registries.BIOME);
 
         try {
             Field isFrozen = materials.getClass().getDeclaredField("ca");
@@ -51,7 +49,7 @@ public final class MCSBiomeManager {
 
     public static <T> MappedRegistry<T> getRegistry(ResourceKey<Registry<T>> key) {
         DedicatedServer server = ((CraftServer) Bukkit.getServer()).getServer();
-        return (MappedRegistry<T>) server.registryAccess().ownedRegistryOrThrow(key);
+        return (MappedRegistry<T>) server.registryAccess().registry(key).orElseThrow(AssertionError::new);
     }
 
     @NotNull
@@ -124,7 +122,7 @@ public final class MCSBiomeManager {
 
     public static boolean isRegistered(@NotNull ResourceKey<Biome> key) {
         try {
-            Holder<Biome> holder = getRegistry(Registry.BIOME_REGISTRY).getHolderOrThrow(key);
+            Holder<Biome> holder = getRegistry(Registries.BIOME).getHolderOrThrow(key);
             return holder != null;
         } catch (IllegalStateException e) {
             return false;
@@ -132,7 +130,7 @@ public final class MCSBiomeManager {
     }
 
     public static void registerBiome(@NotNull MCSBiome biome) {
-        MappedRegistry<Biome> reg = getRegistry(Registry.BIOME_REGISTRY);
+        MappedRegistry<Biome> reg = getRegistry(Registries.BIOME);
         ResourceKey<Biome> key = biome.getResourceKey();
 
         Biome forest = reg.get(Biomes.FOREST);
@@ -142,8 +140,6 @@ public final class MCSBiomeManager {
         builder.generationSettings(forest.getGenerationSettings());
         builder.downfall(0.8F);
         builder.temperature(0.7F);
-
-        builder.precipitation(biome.isFrozen() ? Biome.Precipitation.SNOW : Biome.Precipitation.RAIN);
         builder.temperatureAdjustment(biome.isFrozen() ? Biome.TemperatureModifier.FROZEN : Biome.TemperatureModifier.NONE);
 
         BiomeSpecialEffects.Builder effectB = new BiomeSpecialEffects.Builder();

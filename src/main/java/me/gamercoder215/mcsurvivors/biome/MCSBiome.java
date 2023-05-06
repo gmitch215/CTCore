@@ -2,7 +2,7 @@ package me.gamercoder215.mcsurvivors.biome;
 
 import me.gamercoder215.mcsurvivors.MCSCore;
 import net.minecraft.core.Holder;
-import net.minecraft.core.Registry;
+import net.minecraft.core.registries.Registries;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.level.biome.Biome;
@@ -13,7 +13,10 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.io.*;
-import java.util.*;
+import java.util.HashSet;
+import java.util.Objects;
+import java.util.Set;
+import java.util.UUID;
 
 import static me.gamercoder215.mcsurvivors.MCSCore.print;
 import static me.gamercoder215.mcsurvivors.biome.MCSBiomeManager.getRegistry;
@@ -118,11 +121,11 @@ public final class MCSBiome {
     }
 
     public ResourceKey<Biome> getResourceKey() {
-        return ResourceKey.create(Registry.BIOME_REGISTRY, getResourceLocation());
+        return ResourceKey.create(Registries.BIOME, getResourceLocation());
     }
 
     public Holder<Biome> getHolder() {
-        return getRegistry(Registry.BIOME_REGISTRY).getHolderOrThrow(getResourceKey());
+        return getRegistry(Registries.BIOME).getHolderOrThrow(getResourceKey());
     }
 
     @Override

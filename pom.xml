@@ -6,11 +6,11 @@
 
     <groupId>me.gamercoder215</groupId>
     <artifactId>mcsurvivors-core</artifactId>
-    <version>8</version>
+    <version>9</version>
 
     <name>MCSCore</name>
     <description>Core Plugin used in MC Suvivors</description>
-    <url>https://github.com/GamerCoder215/MCSurvivors8-Core/</url>
+    <url>https://github.com/GamerCoder215/MCSurvivorsCore/</url>
 
 
     <properties>
@@ -19,7 +19,7 @@
         <maven.compiler.target>${java.version}</maven.compiler.target>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 
-        <minecraft.version>1.19.2-R0.1-SNAPSHOT</minecraft.version>
+        <minecraft.version>1.19.4-R0.1-SNAPSHOT</minecraft.version>
         <lamp.version>3.1.5</lamp.version>
     </properties>
 

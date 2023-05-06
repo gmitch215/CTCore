@@ -5,7 +5,6 @@ import me.gamercoder215.mcsurvivors.biome.MCSBiomeManager;
 import me.gamercoder215.mcsurvivors.commands.MCSCommands;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
-import org.bukkit.Location;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.inventory.InventoryClickEvent;
