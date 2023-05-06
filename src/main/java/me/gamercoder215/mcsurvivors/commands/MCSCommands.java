@@ -3,11 +3,11 @@ package me.gamercoder215.mcsurvivors.commands;
 import me.gamercoder215.mcsurvivors.MCSCore;
 import me.gamercoder215.mcsurvivors.biome.MCSBiome;
 import me.gamercoder215.mcsurvivors.biome.MCSBiomeManager;
-import net.minecraft.ResourceLocationException;
+import net.minecraft.ResourceKeyInvalidException;
 import net.minecraft.network.protocol.game.ClientboundLevelChunkWithLightPacket;
-import net.minecraft.resources.ResourceLocation;
-import net.minecraft.server.level.ServerPlayer;
-import net.minecraft.world.level.chunk.LevelChunk;
+import net.minecraft.resources.MinecraftKey;
+import net.minecraft.server.level.EntityPlayer;
+import net.minecraft.world.level.chunk.ChunkStatus;
 import org.bukkit.*;
 import org.bukkit.block.Biome;
 import org.bukkit.command.CommandSender;
@@ -149,8 +149,8 @@ public final class MCSCommands {
         }
 
         try {
-            new ResourceLocation("mcsurvivors", name.toLowerCase());
-        } catch (ResourceLocationException e) {
+            new MinecraftKey("mcsurvivors", name.toLowerCase());
+        } catch (ResourceKeyInvalidException e) {
             p.sendMessage(prefix() + ChatColor.RED + "Invalid name:\n" + e.getMessage());
             return;
         }
@@ -177,9 +177,9 @@ public final class MCSCommands {
         p.sendMessage(prefix() + "Updating chunk...");
 
         Chunk c = p.getLocation().getChunk();
-        LevelChunk nms = ((CraftChunk) c).getHandle();
-        ServerPlayer sp = ((CraftPlayer) p).getHandle();
-        sp.connection.send(new ClientboundLevelChunkWithLightPacket(nms, nms.getLevel().getLightEngine(), null, null, true));
+        net.minecraft.world.level.chunk.Chunk nms = (net.minecraft.world.level.chunk.Chunk) ((CraftChunk) c).getHandle(ChunkStatus.f);
+        EntityPlayer sp = ((CraftPlayer) p).getHandle();
+        sp.b.a(new ClientboundLevelChunkWithLightPacket(nms, nms.D().l_(), null, null, true));
 
         p.sendMessage(prefix() + "Updated chunk!");
         success(p);
@@ -271,7 +271,7 @@ public final class MCSCommands {
                     .append(ChatColor.GOLD)
                     .append(" | ")
                     .append(ChatColor.DARK_AQUA)
-                    .append(biome.getResourceKey().location().toString())
+                    .append(biome.getResourceKey().b().toString())
                     .append("\n");
 
         sender.sendMessage(b.toString());
