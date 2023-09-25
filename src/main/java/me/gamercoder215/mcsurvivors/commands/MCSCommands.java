@@ -3,28 +3,29 @@ package me.gamercoder215.mcsurvivors.commands;
 import me.gamercoder215.mcsurvivors.MCSCore;
 import me.gamercoder215.mcsurvivors.biome.MCSBiome;
 import me.gamercoder215.mcsurvivors.biome.MCSBiomeManager;
-import net.minecraft.ResourceKeyInvalidException;
+import net.minecraft.ResourceLocationException;
 import net.minecraft.network.protocol.game.ClientboundLevelChunkWithLightPacket;
-import net.minecraft.resources.MinecraftKey;
-import net.minecraft.server.level.EntityPlayer;
+import net.minecraft.resources.ResourceLocation;
+import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.level.chunk.ChunkStatus;
+import net.minecraft.world.level.chunk.LevelChunk;
 import org.bukkit.*;
 import org.bukkit.block.Biome;
 import org.bukkit.command.CommandSender;
-import org.bukkit.craftbukkit.v1_19_R3.CraftChunk;
-import org.bukkit.craftbukkit.v1_19_R3.entity.CraftPlayer;
+import org.bukkit.craftbukkit.v1_20_R1.CraftChunk;
+import org.bukkit.craftbukkit.v1_20_R1.entity.CraftPlayer;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
 import org.jetbrains.annotations.NotNull;
 import revxrsal.commands.annotation.*;
-import revxrsal.commands.annotation.Optional;
 import revxrsal.commands.autocomplete.SuggestionProvider;
 import revxrsal.commands.bukkit.BukkitCommandHandler;
 import revxrsal.commands.bukkit.annotation.CommandPermission;
 
-import java.util.*;
+import java.util.Arrays;
+import java.util.Locale;
 import java.util.stream.Collectors;
 
 import static me.gamercoder215.mcsurvivors.MCSCore.prefix;
@@ -149,8 +150,8 @@ public final class MCSCommands {
         }
 
         try {
-            new MinecraftKey("mcsurvivors", name.toLowerCase());
-        } catch (ResourceKeyInvalidException e) {
+            new ResourceLocation("mcsurvivors", name.toLowerCase());
+        } catch (ResourceLocationException e) {
             p.sendMessage(prefix() + ChatColor.RED + "Invalid name:\n" + e.getMessage());
             return;
         }
@@ -177,9 +178,9 @@ public final class MCSCommands {
         p.sendMessage(prefix() + "Updating chunk...");
 
         Chunk c = p.getLocation().getChunk();
-        net.minecraft.world.level.chunk.Chunk nms = (net.minecraft.world.level.chunk.Chunk) ((CraftChunk) c).getHandle(ChunkStatus.f);
-        EntityPlayer sp = ((CraftPlayer) p).getHandle();
-        sp.b.a(new ClientboundLevelChunkWithLightPacket(nms, nms.D().l_(), null, null, true));
+        LevelChunk nms = (LevelChunk) ((CraftChunk) c).getHandle(ChunkStatus.BIOMES);
+        ServerPlayer sp = ((CraftPlayer) p).getHandle();
+        sp.connection.send(new ClientboundLevelChunkWithLightPacket(nms, nms.getLevel().getLightEngine(), null, null));
 
         p.sendMessage(prefix() + "Updated chunk!");
         success(p);
@@ -271,7 +272,7 @@ public final class MCSCommands {
                     .append(ChatColor.GOLD)
                     .append(" | ")
                     .append(ChatColor.DARK_AQUA)
-                    .append(biome.getResourceKey().b().toString())
+                    .append(biome.getResourceKey().location().toString())
                     .append("\n");
 
         sender.sendMessage(b.toString());

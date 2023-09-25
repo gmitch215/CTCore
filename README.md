@@ -1,7 +1,7 @@
 # MCSurvivorsCore
 > Plugin used in MC Survivors since MCS8
 
-## 📚 History 
+## 📚 History
 
 ### MC Survivors 8: Supernova
 

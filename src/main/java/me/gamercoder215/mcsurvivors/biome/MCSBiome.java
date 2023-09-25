@@ -3,9 +3,9 @@ package me.gamercoder215.mcsurvivors.biome;
 import me.gamercoder215.mcsurvivors.MCSCore;
 import net.minecraft.core.Holder;
 import net.minecraft.core.registries.Registries;
-import net.minecraft.resources.MinecraftKey;
 import net.minecraft.resources.ResourceKey;
-import net.minecraft.world.level.biome.BiomeBase;
+import net.minecraft.resources.ResourceLocation;
+import net.minecraft.world.level.biome.Biome;
 import org.apache.commons.io.FileUtils;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.configuration.file.YamlConfiguration;
@@ -116,16 +116,16 @@ public final class MCSBiome {
     }
 
     @NotNull
-    public MinecraftKey getResourceLocation() {
-        return new MinecraftKey("mcsurvivors", getId().toString().substring(0, 8));
+    public ResourceLocation getResourceLocation() {
+        return new ResourceLocation("mcsurvivors", getId().toString().substring(0, 8));
     }
 
-    public ResourceKey<BiomeBase> getResourceKey() {
-        return ResourceKey.a(Registries.an, getResourceLocation());
+    public ResourceKey<Biome> getResourceKey() {
+        return ResourceKey.create(Registries.BIOME, getResourceLocation());
     }
 
-    public Holder<BiomeBase> getHolder() {
-        return getRegistry(Registries.an).f(getResourceKey());
+    public Holder<Biome> getHolder() {
+        return getRegistry(Registries.BIOME).getHolderOrThrow(getResourceKey());
     }
 
     @Override

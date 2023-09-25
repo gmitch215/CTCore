@@ -2,32 +2,35 @@ package me.gamercoder215.mcsurvivors.biome;
 
 import com.mojang.serialization.Lifecycle;
 import me.gamercoder215.mcsurvivors.MCSCore;
-import net.minecraft.core.BlockPosition;
+import net.minecraft.core.BlockPos;
 import net.minecraft.core.Holder;
-import net.minecraft.core.IRegistry;
-import net.minecraft.core.RegistryMaterials;
+import net.minecraft.core.MappedRegistry;
+import net.minecraft.core.Registry;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.network.protocol.game.ClientboundLevelChunkWithLightPacket;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.server.dedicated.DedicatedServer;
-import net.minecraft.server.level.EntityPlayer;
-import net.minecraft.server.level.WorldServer;
-import net.minecraft.world.level.biome.BiomeBase;
-import net.minecraft.world.level.biome.BiomeFog;
+import net.minecraft.server.level.ServerLevel;
+import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.world.level.biome.Biome;
+import net.minecraft.world.level.biome.BiomeSpecialEffects;
 import net.minecraft.world.level.biome.Biomes;
 import net.minecraft.world.level.chunk.ChunkStatus;
+import net.minecraft.world.level.chunk.LevelChunk;
 import org.bukkit.Bukkit;
 import org.bukkit.Chunk;
 import org.bukkit.Location;
-import org.bukkit.craftbukkit.v1_19_R3.CraftChunk;
-import org.bukkit.craftbukkit.v1_19_R3.CraftServer;
-import org.bukkit.craftbukkit.v1_19_R3.CraftWorld;
-import org.bukkit.craftbukkit.v1_19_R3.entity.CraftPlayer;
+import org.bukkit.craftbukkit.v1_20_R1.CraftChunk;
+import org.bukkit.craftbukkit.v1_20_R1.CraftServer;
+import org.bukkit.craftbukkit.v1_20_R1.CraftWorld;
+import org.bukkit.craftbukkit.v1_20_R1.entity.CraftPlayer;
 import org.bukkit.entity.Player;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.jetbrains.annotations.NotNull;
 
 import java.lang.reflect.Field;
+import java.util.IdentityHashMap;
+import java.util.List;
 
 import static me.gamercoder215.mcsurvivors.MCSCore.getPluginLogger;
 import static me.gamercoder215.mcsurvivors.MCSCore.print;
@@ -35,27 +38,31 @@ import static me.gamercoder215.mcsurvivors.MCSCore.print;
 public final class MCSBiomeManager {
 
     public static void changeRegistryLock(boolean isLocked) {
-        RegistryMaterials<BiomeBase> materials = getRegistry(Registries.an);
+        MappedRegistry<Biome> materials = getRegistry(Registries.BIOME);
 
         try {
-            Field isFrozen = materials.getClass().getDeclaredField("ca");
+            Field isFrozen = materials.getClass().getDeclaredField("l");
             isFrozen.setAccessible(true);
             isFrozen.set(materials, isLocked);
+
+            Field unregisteredIntrusiveHolders = materials.getClass().getDeclaredField("m");
+            unregisteredIntrusiveHolders.setAccessible(true);
+            unregisteredIntrusiveHolders.set(materials, isLocked ? null : new IdentityHashMap<>());
         } catch (Exception e) {
             getPluginLogger().info("Error changing biome lock to " + isLocked);
             print(e);
         }
     }
 
-    public static <T> RegistryMaterials<T> getRegistry(ResourceKey<IRegistry<T>> key) {
+    public static <T> MappedRegistry<T> getRegistry(ResourceKey<Registry<T>> key) {
         DedicatedServer server = ((CraftServer) Bukkit.getServer()).getServer();
-        return (RegistryMaterials<T>) server.aX().c(key).orElseThrow(AssertionError::new);
+        return (MappedRegistry<T>) server.registryAccess().registry(key).orElseThrow(AssertionError::new);
     }
 
     @NotNull
     public static void placeBiome(@NotNull MCSBiome b, Chunk c, boolean update) {
-        net.minecraft.world.level.chunk.Chunk nms = (net.minecraft.world.level.chunk.Chunk) ((CraftChunk) c).getHandle(ChunkStatus.f);
-        Holder<BiomeBase> holder = b.getHolder();
+        LevelChunk nms = (LevelChunk) ((CraftChunk) c).getHandle(ChunkStatus.BIOMES);
+        Holder<Biome> holder = b.getHolder();
 
         for (int x = 0; x < 16; x++)
             for (int y = c.getWorld().getMinHeight(); y <= c.getWorld().getMaxHeight(); y++)
@@ -73,11 +80,11 @@ public final class MCSBiomeManager {
         int x = loc.getBlockX();
         int z = loc.getBlockZ();
 
-        BlockPosition pos = new BlockPosition(x, 0, z);
-        WorldServer w = ((CraftWorld) loc.getWorld()).getHandle();
+        BlockPos pos = new BlockPos(x, 0, z);
+        ServerLevel w = ((CraftWorld) loc.getWorld()).getHandle();
 
-        Holder<BiomeBase> holder = b.getHolder();
-        net.minecraft.world.level.chunk.Chunk nmsChunk = w.l(pos);
+        Holder<Biome> holder = b.getHolder();
+        LevelChunk nmsChunk = w.getChunkAt(pos);
 
         for (int y = loc.getWorld().getMinHeight(); y <= loc.getWorld().getMaxHeight(); y++)
             nmsChunk.setBiome(x >> 2, y >> 2, z >> 2, holder);
@@ -86,13 +93,10 @@ public final class MCSBiomeManager {
     }
 
     public static void updateChunk(@NotNull Chunk c) {
-        net.minecraft.world.level.chunk.Chunk nms = (net.minecraft.world.level.chunk.Chunk) ((CraftChunk) c).getHandle(ChunkStatus.f);
-        for (Player p : c.getWorld().getPlayers()) {
-            Location l = p.getLocation();
-            EntityPlayer sp = ((CraftPlayer) p).getHandle();
-            if (l.distance(c.getBlock(0, 0, 0).getLocation()) < Bukkit.getServer().getViewDistance() * 16)
-                sp.b.a(new ClientboundLevelChunkWithLightPacket(nms, nms.D().l_(), null, null, true));
-        }
+        LevelChunk chunk = (LevelChunk) ((CraftChunk) c).getHandle(ChunkStatus.BIOMES);
+        ServerLevel level = (ServerLevel) chunk.getLevel();
+
+        level.getChunkSource().chunkMap.resendBiomesForChunks(List.of(chunk));
     }
 
     public static void registerBiomes() {
@@ -120,9 +124,9 @@ public final class MCSBiomeManager {
         return isRegistered(biome.getResourceKey());
     }
 
-    public static boolean isRegistered(@NotNull ResourceKey<BiomeBase> key) {
+    public static boolean isRegistered(@NotNull ResourceKey<Biome> key) {
         try {
-            Holder<BiomeBase> holder = getRegistry(Registries.an).f(key);
+            Holder<Biome> holder = getRegistry(Registries.BIOME).getHolderOrThrow(key);
             return holder != null;
         } catch (IllegalStateException e) {
             return false;
@@ -130,32 +134,33 @@ public final class MCSBiomeManager {
     }
 
     public static void registerBiome(@NotNull MCSBiome biome) {
-        RegistryMaterials<BiomeBase> reg = getRegistry(Registries.an);
-        ResourceKey<BiomeBase> key = biome.getResourceKey();
+        MappedRegistry<Biome> reg = getRegistry(Registries.BIOME);
+        ResourceKey<Biome> key = biome.getResourceKey();
 
-        BiomeBase forest = reg.a(Biomes.i);
-        BiomeBase.a builder = new BiomeBase.a();
+        Biome forest = reg.get(Biomes.FOREST);
+        Biome.BiomeBuilder builder = new Biome.BiomeBuilder();
 
-        builder.a(forest.b());
-        builder.a(forest.d());
-        builder.b(0.8F);
-        builder.a(0.7F);
-        builder.a(biome.isFrozen() ? BiomeBase.TemperatureModifier.b : BiomeBase.TemperatureModifier.a);
+        builder.mobSpawnSettings(forest.getMobSettings());
+        builder.generationSettings(forest.getGenerationSettings());
+        builder.downfall(0.8F);
+        builder.temperature(0.7F);
+        builder.temperatureAdjustment(biome.isFrozen() ? Biome.TemperatureModifier.FROZEN : Biome.TemperatureModifier.NONE);
 
-        BiomeFog.a effectB = new BiomeFog.a();
-        effectB.a(BiomeFog.GrassColor.a);
-        effectB.a(Integer.parseInt(biome.getFogColor(), 16));
-        effectB.c(Integer.parseInt(biome.getFogColor(), 16));
-        effectB.b(Integer.parseInt(biome.getWaterColor(), 16));
-        effectB.d(Integer.parseInt(biome.getSkyColor(), 16));
+        BiomeSpecialEffects.Builder effectB = new BiomeSpecialEffects.Builder();
+        effectB.grassColorModifier(BiomeSpecialEffects.GrassColorModifier.NONE);
+        effectB.fogColor(Integer.parseInt(biome.getFogColor(), 16));
+        effectB.waterFogColor(Integer.parseInt(biome.getFogColor(), 16));
+        effectB.waterColor(Integer.parseInt(biome.getWaterColor(), 16));
+        effectB.skyColor(Integer.parseInt(biome.getSkyColor(), 16));
 
-        effectB.e(Integer.parseInt(biome.getFoliageColor(), 16));
-        effectB.f(Integer.parseInt(biome.getGrassColor(), 16));
+        effectB.foliageColorOverride(Integer.parseInt(biome.getFoliageColor(), 16));
+        effectB.grassColorOverride(Integer.parseInt(biome.getGrassColor(), 16));
 
-        builder.a(effectB.a());
+        builder.specialEffects(effectB.build());
 
-        BiomeBase nmsBiome = builder.a();
-        reg.a(key, nmsBiome, Lifecycle.stable());
+        Biome nmsBiome = builder.build();
+        reg.createIntrusiveHolder(nmsBiome);
+        reg.register(key, nmsBiome, Lifecycle.stable());
     }
 
 }
