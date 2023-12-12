@@ -3,6 +3,7 @@ package me.gamercoder215.mcsurvivors;
 import me.gamercoder215.mcsurvivors.biome.MCSBiome;
 import me.gamercoder215.mcsurvivors.biome.MCSBiomeManager;
 import me.gamercoder215.mcsurvivors.commands.MCSCommands;
+import me.gamercoder215.mcsurvivors.events.RaceEvents;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.event.EventHandler;
@@ -72,6 +73,7 @@ public final class MCSCore extends JavaPlugin implements Listener {
         getLogger().info("Loaded Biomes...");
 
         new MCSCommands(this);
+        new RaceEvents(this);
         Bukkit.getPluginManager().registerEvents(this, this);
 
         getLogger().info("Loaded Classes...");
