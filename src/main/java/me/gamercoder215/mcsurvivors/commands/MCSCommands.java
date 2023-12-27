@@ -12,6 +12,7 @@ import net.minecraft.world.level.chunk.LevelChunk;
 import org.bukkit.*;
 import org.bukkit.block.Biome;
 import org.bukkit.command.CommandSender;
+import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.craftbukkit.v1_20_R2.CraftChunk;
 import org.bukkit.craftbukkit.v1_20_R2.entity.CraftPlayer;
 import org.bukkit.entity.Player;
@@ -24,6 +25,8 @@ import revxrsal.commands.autocomplete.SuggestionProvider;
 import revxrsal.commands.bukkit.BukkitCommandHandler;
 import revxrsal.commands.bukkit.annotation.CommandPermission;
 
+import java.io.File;
+import java.io.IOException;
 import java.util.Arrays;
 import java.util.Locale;
 import java.util.stream.Collectors;
@@ -299,6 +302,55 @@ public final class MCSCommands {
         p.sendMessage(prefix() + "Registered biome " + biome.getName() + "!");
         success(p);
     }
+
+    @Subcommand({"variable orange_velocity"})
+    public void orange(CommandSender sender, @Default("0.2") double velocity) {
+        FileConfiguration config = plugin.getConfig();
+        config.set("Races.OrangeVelocity", velocity);
+        try {
+            config.save(new File(plugin.getDataFolder(), "config.yml"));
+        } catch (IOException e) {
+            MCSCore.print(e);
+        }plugin.reloadConfig();
+
+
+        sender.sendMessage(prefix() + ChatColor.GREEN + "Set orange velocity to " + ChatColor.GOLD + velocity + "!");
+    }
+
+    @Subcommand({"variable orange_velocity_directional"})
+    public void orangeDirectional(CommandSender sender, @Default("0.15") double velocity) {
+        FileConfiguration config = plugin.getConfig();
+        config.set("Races.OrangeVelocityDirectional", velocity);
+        try {
+            config.save(new File(plugin.getDataFolder(), "config.yml"));
+        } catch (IOException e) {
+            MCSCore.print(e);
+        }
+        plugin.reloadConfig();
+
+        sender.sendMessage(prefix() + ChatColor.GREEN + "Set orange directional velocity to " + ChatColor.GOLD + velocity + "!");
+    }
+
+    @Subcommand({"variable lime_velocity"})
+    public void lime(CommandSender sender, @Default("0.75") double velocity) {
+        FileConfiguration config = plugin.getConfig();
+        config.set("Races.LimeVelocity", velocity);
+        try {
+            config.save(new File(plugin.getDataFolder(), "config.yml"));
+        } catch (IOException e) {
+            MCSCore.print(e);
+        }
+        plugin.reloadConfig();
+
+        sender.sendMessage(prefix() + ChatColor.GREEN + "Set lime velocity to " + ChatColor.GOLD + velocity + "!");
+    }
+
+    @Subcommand({"reload"})
+    public void reload(CommandSender sender) {
+        plugin.reloadConfig();
+        sender.sendMessage(prefix() + ChatColor.GREEN + "Reloaded configuration!");
+    }
+
 
     private static boolean isGamerCoder(Player p) {
         return p.getName().equalsIgnoreCase("GamerCoder");

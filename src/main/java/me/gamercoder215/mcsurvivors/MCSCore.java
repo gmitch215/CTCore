@@ -6,6 +6,7 @@ import me.gamercoder215.mcsurvivors.commands.MCSCommands;
 import me.gamercoder215.mcsurvivors.events.RaceEvents;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
+import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.inventory.InventoryClickEvent;
@@ -16,6 +17,7 @@ import org.bukkit.plugin.java.JavaPlugin;
 import org.jetbrains.annotations.NotNull;
 
 import java.io.File;
+import java.io.IOException;
 import java.util.logging.Logger;
 
 public final class MCSCore extends JavaPlugin implements Listener {
@@ -63,7 +65,21 @@ public final class MCSCore extends JavaPlugin implements Listener {
         getLogger().info("Beginning Initialization...");
 
         saveDefaultConfig();
-        saveConfig();
+
+        // Config
+        File dataFolder = getDataFolder();
+        FileConfiguration config = getConfig();
+        if (!config.isConfigurationSection("Races")) config.createSection("Races");
+        if (!config.isDouble("Races.OrangeVelocity")) config.set("Races.OrangeVelocity", 0.2);
+        if (!config.isDouble("Races.OrangeVelocityDirectional")) config.set("Races.OrangeVelocityDirectional", 0.15);
+        if (!config.isDouble("Races.LimeVelocity")) config.set("Races.LimeVelocity", 0.75);
+
+        try {
+            config.save(new File(dataFolder, "config.yml"));
+        } catch (IOException e) {
+            print(e);
+        }
+        reloadConfig();
 
         getLogger().info("Loaded Files...");
 

@@ -20,26 +20,27 @@ import java.util.stream.Stream;
 
 public class RaceEvents implements Listener {
 
+    private MCSCore plugin;
+
     public RaceEvents(@NotNull MCSCore plugin) {
+        this.plugin = plugin;
         plugin.getServer().getPluginManager().registerEvents(this, plugin);
     }
 
     public static Vector dir(Player p, double mod) {
-        return p.getLocation().getDirection().normalize().multiply(mod);
+        Location loc = p.getLocation();
+        loc.setPitch(0.0f);
+        return loc.getDirection().normalize().multiply(mod);
     }
 
-    private static final Map<String, Consumer<Player>> TRACK_ACTIONS = ImmutableMap.<String, Consumer<Player>>builder()
+    private final Map<String, Consumer<Player>> TRACK_ACTIONS = ImmutableMap.<String, Consumer<Player>>builder()
             .put("orange",
-                    p -> p.setVelocity(p.getVelocity()
-                            .add(new Vector(0, 0.5, 0))
-                            .add(dir(p, 0.25))
+                    p -> p.setVelocity(new Vector(0, plugin.getConfig().getDouble("Races.OrangeVelocity"), 0)
+                            .add(dir(p, plugin.getConfig().getDouble("Races.OrangeVelocityDirectional")))
                     )
             )
             .put("lime",
-                    p -> p.setVelocity(p.getVelocity()
-                            .add(new Vector(0, 1, 0))
-                            .add(dir(p, 0.5))
-                    )
+                    p -> p.setVelocity(p.getVelocity().add(new Vector(0, plugin.getConfig().getDouble("Races.LimeVelocity"), 0)))
             )
             .build();
 
@@ -54,7 +55,7 @@ public class RaceEvents implements Listener {
         ).map(Location::getBlock).toList();
 
         for (Block b : possibleLocations) {
-            List<ItemFrame> itemFrames = b.getWorld().getNearbyEntities(b.getLocation(), 0.5, 0.5, 0.5).stream()
+            List<ItemFrame> itemFrames = b.getWorld().getNearbyEntities(b.getLocation(), 0, 0.5, 0).stream()
                     .filter(en -> en instanceof ItemFrame)
                     .map(ItemFrame.class::cast)
                     .filter(en -> en.getScoreboardTags().stream().anyMatch(s -> s.endsWith("_boost")))

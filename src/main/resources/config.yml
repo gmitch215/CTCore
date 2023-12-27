@@ -1,4 +1,9 @@
 # MCSCore | For MC Survivors ${project.version}
 # Created by GamerCoder
 
-# Nothing in here, yet...
+Races:
+
+  OrangeVelocity: 0.2
+  OrangeVelocityDirectional: 0.15
+
+  LimeVelocity: 0.75

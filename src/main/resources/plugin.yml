@@ -9,3 +9,6 @@ permissions:
   mcsurvivors.admin:
     description: Allows access to all MCSurvivors commands.
     default: op
+  mcsurvivors.admin.variables:
+    description: Allows access to all MCSurvivors variables.
+    default: op
