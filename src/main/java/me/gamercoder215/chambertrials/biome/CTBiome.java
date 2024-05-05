@@ -1,6 +1,6 @@
-package me.gamercoder215.mcsurvivors.biome;
+package me.gamercoder215.chambertrials.biome;
 
-import me.gamercoder215.mcsurvivors.MCSCore;
+import me.gamercoder215.chambertrials.CTCore;
 import net.minecraft.core.Holder;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.resources.ResourceKey;
@@ -18,10 +18,10 @@ import java.util.Objects;
 import java.util.Set;
 import java.util.UUID;
 
-import static me.gamercoder215.mcsurvivors.MCSCore.print;
-import static me.gamercoder215.mcsurvivors.biome.MCSBiomeManager.getRegistry;
+import static me.gamercoder215.chambertrials.CTCore.print;
+import static me.gamercoder215.chambertrials.biome.CTBiomeManager.getRegistry;
 
-public final class MCSBiome {
+public final class CTBiome {
 
     public static final boolean DEFAULT_FROZEN = false;
     public static final String DEFAULT_WATER_COLOR = "3F76E4";
@@ -30,7 +30,7 @@ public final class MCSBiome {
     public static final String DEFAULT_GRASS_COLOR = "91BD59";
     public static final String DEFAULT_FOLIAGE_COLOR = "77AB2F";
 
-    public static final Set<MCSBiome> BIOME_CACHE = new HashSet<>();
+    public static final Set<CTBiome> BIOME_CACHE = new HashSet<>();
 
     private final File folder;
     private final UUID id;
@@ -43,7 +43,7 @@ public final class MCSBiome {
     private String grassColor = DEFAULT_GRASS_COLOR;
     private String foliageColor = DEFAULT_FOLIAGE_COLOR;
 
-    private MCSBiome(File folder, @NotNull UUID id, @NotNull String name) {
+    private CTBiome(File folder, @NotNull UUID id, @NotNull String name) {
         this.folder = folder;
         this.name = name;
         this.id = id;
@@ -132,7 +132,7 @@ public final class MCSBiome {
     public boolean equals(Object o) {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
-        MCSBiome that = (MCSBiome) o;
+        CTBiome that = (CTBiome) o;
         return id.equals(that.id);
     }
 
@@ -149,12 +149,12 @@ public final class MCSBiome {
     }
 
     @NotNull
-    public static Set<MCSBiome> getAllBiomes() {
+    public static Set<CTBiome> getAllBiomes() {
         if (!BIOME_CACHE.isEmpty()) return BIOME_CACHE;
-        Set<MCSBiome> biomes = new HashSet<>();
-        if (MCSCore.getBiomesFolder().listFiles() == null) return biomes;
+        Set<CTBiome> biomes = new HashSet<>();
+        if (CTCore.getBiomesFolder().listFiles() == null) return biomes;
 
-        for (File folder : MCSCore.getBiomesFolder().listFiles()) {
+        for (File folder : CTCore.getBiomesFolder().listFiles()) {
             if (!folder.isDirectory()) continue;
 
             try {
@@ -170,7 +170,7 @@ public final class MCSBiome {
     }
 
     @Nullable
-    public static MCSBiome byId(@NotNull UUID id) {
+    public static CTBiome byId(@NotNull UUID id) {
         return getAllBiomes()
                 .stream()
                 .filter(b -> b.getId().equals(id))
@@ -179,7 +179,7 @@ public final class MCSBiome {
     }
 
     @Nullable
-    public static MCSBiome byName(@NotNull String name) {
+    public static CTBiome byName(@NotNull String name) {
         return getAllBiomes()
                 .stream()
                 .filter(b -> b.getName().equalsIgnoreCase(name))
@@ -187,7 +187,7 @@ public final class MCSBiome {
                 .orElse(null);
     }
 
-    public static void removeBiome(@NotNull MCSBiome biome) {
+    public static void removeBiome(@NotNull CTBiome biome) {
         if (biome == null) return;
 
         File folder = biome.getFolder();
@@ -197,8 +197,8 @@ public final class MCSBiome {
             print(e);
         }
 
-        MCSBiome.BIOME_CACHE.clear();
-        MCSBiome.getAllBiomes();
+        CTBiome.BIOME_CACHE.clear();
+        CTBiome.getAllBiomes();
     }
 
     public static boolean existsName(@NotNull String name) {
@@ -246,7 +246,7 @@ public final class MCSBiome {
     }
 
     @NotNull
-    private static MCSBiome read(File folder) throws IllegalStateException, IOException, ReflectiveOperationException {
+    private static CTBiome read(File folder) throws IllegalStateException, IOException, ReflectiveOperationException {
         File info = new File(folder, "info.dat");
         if (!info.exists()) throw new IllegalStateException("Could not find: info.dat");
 
@@ -255,7 +255,7 @@ public final class MCSBiome {
         String name = (String) infoIs.readObject();
         infoIs.close();
 
-        MCSBiome b = new MCSBiome(folder, id, name);
+        CTBiome b = new CTBiome(folder, id, name);
 
         File biome = new File(folder, "data.yml");
         if (!biome.exists()) throw new IllegalStateException("Could not find: data.yml");
@@ -324,12 +324,12 @@ public final class MCSBiome {
         }
 
         @NotNull
-        public MCSBiome build() {
+        public CTBiome build() {
             UUID id = UUID.randomUUID();
-            File folder = new File(MCSCore.getBiomesFolder(), id.toString());
+            File folder = new File(CTCore.getBiomesFolder(), id.toString());
             folder.mkdir();
 
-            MCSBiome b = new MCSBiome(folder, id, name);
+            CTBiome b = new CTBiome(folder, id, name);
 
             b.frozen = frozen;
             b.grassColor = grassColor;
@@ -340,7 +340,7 @@ public final class MCSBiome {
             b.save();
 
             BIOME_CACHE.clear();
-            MCSBiome.getAllBiomes();
+            CTBiome.getAllBiomes();
 
             return b;
         }

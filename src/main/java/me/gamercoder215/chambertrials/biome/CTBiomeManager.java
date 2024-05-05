@@ -1,7 +1,7 @@
-package me.gamercoder215.mcsurvivors.biome;
+package me.gamercoder215.chambertrials.biome;
 
 import com.mojang.serialization.Lifecycle;
-import me.gamercoder215.mcsurvivors.MCSCore;
+import me.gamercoder215.chambertrials.CTCore;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Holder;
 import net.minecraft.core.MappedRegistry;
@@ -18,9 +18,9 @@ import net.minecraft.world.level.chunk.LevelChunk;
 import org.bukkit.Bukkit;
 import org.bukkit.Chunk;
 import org.bukkit.Location;
-import org.bukkit.craftbukkit.v1_20_R2.CraftChunk;
-import org.bukkit.craftbukkit.v1_20_R2.CraftServer;
-import org.bukkit.craftbukkit.v1_20_R2.CraftWorld;
+import org.bukkit.craftbukkit.v1_20_R3.CraftChunk;
+import org.bukkit.craftbukkit.v1_20_R3.CraftServer;
+import org.bukkit.craftbukkit.v1_20_R3.CraftWorld;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.jetbrains.annotations.NotNull;
 
@@ -28,10 +28,10 @@ import java.lang.reflect.Field;
 import java.util.IdentityHashMap;
 import java.util.List;
 
-import static me.gamercoder215.mcsurvivors.MCSCore.getPluginLogger;
-import static me.gamercoder215.mcsurvivors.MCSCore.print;
+import static me.gamercoder215.chambertrials.CTCore.getPluginLogger;
+import static me.gamercoder215.chambertrials.CTCore.print;
 
-public final class MCSBiomeManager {
+public final class CTBiomeManager {
 
     public static void changeRegistryLock(boolean isLocked) {
         MappedRegistry<Biome> materials = getRegistry(Registries.BIOME);
@@ -56,7 +56,7 @@ public final class MCSBiomeManager {
     }
 
     @NotNull
-    public static void placeBiome(@NotNull MCSBiome b, Chunk c, boolean update) {
+    public static void placeBiome(@NotNull CTBiome b, Chunk c, boolean update) {
         LevelChunk nms = (LevelChunk) ((CraftChunk) c).getHandle(ChunkStatus.BIOMES);
         Holder<Biome> holder = b.getHolder();
 
@@ -70,7 +70,7 @@ public final class MCSBiomeManager {
     }
 
     @NotNull
-    public static void placeBiome(@NotNull MCSBiome b, Location loc, boolean update) {
+    public static void placeBiome(@NotNull CTBiome b, Location loc, boolean update) {
         if (!isRegistered(b)) throw new IllegalArgumentException("Biome " + b.getName() + " is not registered!");
 
         int x = loc.getBlockX();
@@ -100,12 +100,12 @@ public final class MCSBiomeManager {
     }
 
     public static void registerBiomes(boolean log) {
-        MCSCore plugin = JavaPlugin.getPlugin(MCSCore.class);
+        CTCore plugin = JavaPlugin.getPlugin(CTCore.class);
 
         changeRegistryLock(false);
 
         int i = 0;
-        for (MCSBiome biome : MCSBiome.getAllBiomes()) {
+        for (CTBiome biome : CTBiome.getAllBiomes()) {
             if (isRegistered(biome)) continue;
 
             registerBiome(biome);
@@ -116,7 +116,7 @@ public final class MCSBiomeManager {
         if (log) plugin.getLogger().info("Registered " + i + " new biomes");
     }
 
-    public static boolean isRegistered(@NotNull MCSBiome biome) {
+    public static boolean isRegistered(@NotNull CTBiome biome) {
         return isRegistered(biome.getResourceKey());
     }
 
@@ -129,7 +129,7 @@ public final class MCSBiomeManager {
         }
     }
 
-    public static void registerBiome(@NotNull MCSBiome biome) {
+    public static void registerBiome(@NotNull CTBiome biome) {
         MappedRegistry<Biome> reg = getRegistry(Registries.BIOME);
         ResourceKey<Biome> key = biome.getResourceKey();
 

@@ -1,9 +1,10 @@
-package me.gamercoder215.mcsurvivors;
+package me.gamercoder215.chambertrials;
 
-import me.gamercoder215.mcsurvivors.biome.MCSBiome;
-import me.gamercoder215.mcsurvivors.biome.MCSBiomeManager;
-import me.gamercoder215.mcsurvivors.commands.MCSCommands;
-import me.gamercoder215.mcsurvivors.events.RaceEvents;
+import me.gamercoder215.chambertrials.biome.CTBiome;
+import me.gamercoder215.chambertrials.biome.CTBiomeManager;
+import me.gamercoder215.chambertrials.commands.CTCommands;
+import me.gamercoder215.chambertrials.commands.CTCommandsUser;
+import me.gamercoder215.chambertrials.events.RaceEvents;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.configuration.file.FileConfiguration;
@@ -15,12 +16,15 @@ import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.InventoryHolder;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.jetbrains.annotations.NotNull;
+import revxrsal.commands.bukkit.BukkitCommandHandler;
 
 import java.io.File;
 import java.io.IOException;
 import java.util.logging.Logger;
 
-public final class MCSCore extends JavaPlugin implements Listener {
+public final class CTCore extends JavaPlugin implements Listener {
+
+    public static BukkitCommandHandler handler;
 
     public static final class CancelHolder implements InventoryHolder {
         @Override
@@ -31,18 +35,18 @@ public final class MCSCore extends JavaPlugin implements Listener {
 
     @NotNull
     public static Logger getPluginLogger() {
-        return JavaPlugin.getPlugin(MCSCore.class).getLogger();
+        return JavaPlugin.getPlugin(CTCore.class).getLogger();
     }
 
     @NotNull
     public static File getPluginDataFolder() {
-        return JavaPlugin.getPlugin(MCSCore.class).getDataFolder();
+        return JavaPlugin.getPlugin(CTCore.class).getDataFolder();
     }
 
     @NotNull
     public static String prefix() {
         return ChatColor.translateAlternateColorCodes('&',
-                "&6[&eMCS-10&6]&r &a");
+                "&6[&eCT&6]&r &a");
     }
 
     @NotNull
@@ -61,7 +65,7 @@ public final class MCSCore extends JavaPlugin implements Listener {
 
     @Override
     public void onEnable() {
-        getLogger().info("MCSCore - Created by GamerCoder");
+        getLogger().info("CTCore - Created by gmitch215");
         getLogger().info("Beginning Initialization...");
 
         saveDefaultConfig();
@@ -83,12 +87,15 @@ public final class MCSCore extends JavaPlugin implements Listener {
 
         getLogger().info("Loaded Files...");
 
-        MCSBiomeManager.registerBiomes();
-        MCSBiome.getAllBiomes(); // Load Cache
+        CTBiomeManager.registerBiomes();
+        CTBiome.getAllBiomes(); // Load Cache
 
         getLogger().info("Loaded Biomes...");
 
-        new MCSCommands(this);
+        handler = BukkitCommandHandler.create(this);
+
+        new CTCommands(this, handler);
+        new CTCommandsUser(this, handler);
         new RaceEvents(this);
         Bukkit.getPluginManager().registerEvents(this, this);
 
