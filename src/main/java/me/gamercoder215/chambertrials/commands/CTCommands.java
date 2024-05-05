@@ -1,8 +1,8 @@
-package me.gamercoder215.mcsurvivors.commands;
+package me.gamercoder215.chambertrials.commands;
 
-import me.gamercoder215.mcsurvivors.MCSCore;
-import me.gamercoder215.mcsurvivors.biome.MCSBiome;
-import me.gamercoder215.mcsurvivors.biome.MCSBiomeManager;
+import me.gamercoder215.chambertrials.CTCore;
+import me.gamercoder215.chambertrials.biome.CTBiome;
+import me.gamercoder215.chambertrials.biome.CTBiomeManager;
 import net.minecraft.ResourceLocationException;
 import net.minecraft.network.protocol.game.ClientboundLevelChunkWithLightPacket;
 import net.minecraft.resources.ResourceLocation;
@@ -13,8 +13,8 @@ import org.bukkit.*;
 import org.bukkit.block.Biome;
 import org.bukkit.command.CommandSender;
 import org.bukkit.configuration.file.FileConfiguration;
-import org.bukkit.craftbukkit.v1_20_R2.CraftChunk;
-import org.bukkit.craftbukkit.v1_20_R2.entity.CraftPlayer;
+import org.bukkit.craftbukkit.v1_20_R3.CraftChunk;
+import org.bukkit.craftbukkit.v1_20_R3.entity.CraftPlayer;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
@@ -31,18 +31,17 @@ import java.util.Arrays;
 import java.util.Locale;
 import java.util.stream.Collectors;
 
-import static me.gamercoder215.mcsurvivors.MCSCore.prefix;
-import static me.gamercoder215.mcsurvivors.biome.MCSBiome.*;
-import static me.gamercoder215.mcsurvivors.biome.MCSBiomeManager.changeRegistryLock;
+import static me.gamercoder215.chambertrials.CTCore.prefix;
+import static me.gamercoder215.chambertrials.biome.CTBiome.*;
+import static me.gamercoder215.chambertrials.biome.CTBiomeManager.changeRegistryLock;
 
-@Command({"mcs", "mcsurvivors", "mcsurvivor"})
-@CommandPermission("mcsurvivors.admin")
-@Description("Main MCSurvivors Administrator Command")
-@Usage("/mcs <command>")
-public final class MCSCommands {
+@Command({"ct", "ctrials", "ctrial"})
+@CommandPermission("ctrials.admin")
+@Description("Main Chamber Trials Administrator Command")
+@Usage("/ct <command>")
+public final class CTCommands {
 
-    private final MCSCore plugin;
-    private static BukkitCommandHandler handler;
+    private final CTCore plugin;
 
     private static <T extends Enum<T>> boolean hasEnum(Class<T> clazz, String name) {
         for (T t : clazz.getEnumConstants()) if (t.name().equalsIgnoreCase(name)) return true;
@@ -76,13 +75,9 @@ public final class MCSCommands {
         };
     }
 
-    public MCSCommands(MCSCore plugin) {
+    public CTCommands(CTCore plugin, BukkitCommandHandler handler) {
         this.plugin = plugin;
-        if (handler != null) return;
-
-        handler = BukkitCommandHandler.create(plugin);
-
-        handler.registerValueResolver(MCSBiome.class, ctx -> MCSBiome.byName(ctx.popForParameter()))
+        handler.registerValueResolver(CTBiome.class, ctx -> CTBiome.byName(ctx.popForParameter()))
                 .registerValueResolver(Color.class, ctx -> {
                     String param = ctx.popForParameter();
 
@@ -129,7 +124,7 @@ public final class MCSCommands {
                         .map(String::toLowerCase)
                         .collect(Collectors.toList())
                 ))
-                .registerParameterSuggestions(MCSBiome.class, SuggestionProvider.map(MCSBiome::getAllBiomes, MCSBiome::getName));
+                .registerParameterSuggestions(CTBiome.class, SuggestionProvider.map(CTBiome::getAllBiomes, CTBiome::getName));
 
         handler.register(this);
 
@@ -147,7 +142,7 @@ public final class MCSCommands {
                             @Default(DEFAULT_FOLIAGE_COLOR) Color foliageColor,
                             @Switch boolean frozen) {
 
-        if (MCSBiome.byName(name) != null) {
+        if (CTBiome.byName(name) != null) {
             p.sendMessage(prefix() + ChatColor.RED + "A biome with that name already exists!");
             return;
         }
@@ -159,7 +154,7 @@ public final class MCSCommands {
             return;
         }
 
-        MCSBiome biome = MCSBiome.builder(name)
+        CTBiome biome = CTBiome.builder(name)
                 .setFrozen(frozen)
                 .setWaterColor(toHex(waterColor))
                 .setFogColor(toHex(fogColor))
@@ -169,7 +164,7 @@ public final class MCSCommands {
                 .build();
 
         changeRegistryLock(false);
-        MCSBiomeManager.registerBiome(biome);
+        CTBiomeManager.registerBiome(biome);
         changeRegistryLock(true);
 
         p.sendMessage(prefix() + "Created biome " + ChatColor.GREEN + name + "!");
@@ -201,22 +196,22 @@ public final class MCSCommands {
     }
 
     @Subcommand({"biome set", "setbiome"})
-    public void setBiome(Player p, PlaceOption option, MCSBiome biome) {
+    public void setBiome(Player p, PlaceOption option, CTBiome biome) {
         if (biome == null) {
             p.sendMessage(prefix() + ChatColor.RED + "That biome does not exist!");
             return;
         }
 
         switch (option) {
-            case SELF -> MCSBiomeManager.placeBiome(biome, p.getLocation(), true);
-            case CHUNK -> MCSBiomeManager.placeBiome(biome, p.getLocation().getChunk(), true);
+            case SELF -> CTBiomeManager.placeBiome(biome, p.getLocation(), true);
+            case CHUNK -> CTBiomeManager.placeBiome(biome, p.getLocation().getChunk(), true);
         }
 
         p.sendMessage(prefix() + "Biome set to " + biome.getName() + "!");
     }
 
     @Subcommand({"biome delete", "biome remove", "removebiome", "deletebiome"})
-    public void deleteBiome(CommandSender sender, MCSBiome biome, @Default("") String confirm) {
+    public void deleteBiome(CommandSender sender, CTBiome biome, @Default("") String confirm) {
         if (biome == null) {
             sender.sendMessage(prefix() + ChatColor.RED + "That biome does not exist!");
             return;
@@ -227,7 +222,7 @@ public final class MCSCommands {
             return;
         }
 
-        MCSBiome.removeBiome(biome);
+        CTBiome.removeBiome(biome);
         if (sender instanceof Player p) success(p);
     }
 
@@ -252,13 +247,13 @@ public final class MCSCommands {
     }
 
     @Subcommand({"biome info", "biomeinfo", "biome information"})
-    public void biomeInfo(Player p, MCSBiome biome) {
+    public void biomeInfo(Player p, CTBiome biome) {
         if (biome == null) {
             p.sendMessage(prefix() + ChatColor.RED + "That biome does not exist!");
             return;
         }
 
-        Inventory info = Bukkit.createInventory(new MCSCore.CancelHolder(), 45, "Biome Information | " + biome.getName());
+        Inventory info = Bukkit.createInventory(new CTCore.CancelHolder(), 45, "Biome Information | " + biome.getName());
         setBorders(info, Material.BLACK_STAINED_GLASS_PANE);
 
         p.openInventory(info);
@@ -270,7 +265,7 @@ public final class MCSCommands {
         StringBuilder b = new StringBuilder();
         b.append(ChatColor.GOLD).append(ChatColor.UNDERLINE).append("Custom Biome List").append("\n");
 
-        for (MCSBiome biome : MCSBiome.getAllBiomes())
+        for (CTBiome biome : CTBiome.getAllBiomes())
             b.append(ChatColor.AQUA).append(biome.getName())
                     .append(ChatColor.GOLD)
                     .append(" | ")
@@ -282,22 +277,24 @@ public final class MCSCommands {
     }
 
     @Subcommand({"biome register", "registerbiome"})
-    public void registerBiome(Player p, MCSBiome biome) {
+    public void registerBiome(Player p, CTBiome biome) {
         if (biome == null) {
             p.sendMessage(prefix() + ChatColor.RED + "That biome does not exist!");
             return;
         }
 
-        if (!isGamerCoder(p)) {
+        if (!isPluginOwner(p)) {
             p.sendMessage(prefix() + ChatColor.RED + "You do not have permission to register biomes!");
             return;
         }
 
-        p.sendMessage("[DEBUG] Biome " + biome.getName() + " Registry Status: " + MCSBiomeManager.isRegistered(biome));
+        p.sendMessage("[DEBUG] Biome " + biome.getName() + " Registry Status: " + CTBiomeManager.isRegistered(biome));
 
         changeRegistryLock(false);
-        MCSBiomeManager.registerBiome(biome);
+        CTBiomeManager.registerBiome(biome);
         changeRegistryLock(true);
+
+        p.sendMessage("[DEBUG] Biome " + biome.getName() + " Registry Status: " + CTBiomeManager.isRegistered(biome));
 
         p.sendMessage(prefix() + "Registered biome " + biome.getName() + "!");
         success(p);
@@ -310,7 +307,7 @@ public final class MCSCommands {
         try {
             config.save(new File(plugin.getDataFolder(), "config.yml"));
         } catch (IOException e) {
-            MCSCore.print(e);
+            CTCore.print(e);
         }plugin.reloadConfig();
 
 
@@ -324,7 +321,7 @@ public final class MCSCommands {
         try {
             config.save(new File(plugin.getDataFolder(), "config.yml"));
         } catch (IOException e) {
-            MCSCore.print(e);
+            CTCore.print(e);
         }
         plugin.reloadConfig();
 
@@ -338,7 +335,7 @@ public final class MCSCommands {
         try {
             config.save(new File(plugin.getDataFolder(), "config.yml"));
         } catch (IOException e) {
-            MCSCore.print(e);
+            CTCore.print(e);
         }
         plugin.reloadConfig();
 
@@ -352,8 +349,8 @@ public final class MCSCommands {
     }
 
 
-    private static boolean isGamerCoder(Player p) {
-        return p.getName().equalsIgnoreCase("GamerCoder");
+    private static boolean isPluginOwner(Player p) {
+        return p.getName().equalsIgnoreCase("gmitch215");
     }
 
     // Sound Util
