@@ -1,7 +1,7 @@
-package me.gamercoder215.mcsurvivors.events;
+package me.gamercoder215.chambertrials.events;
 
 import com.google.common.collect.ImmutableMap;
-import me.gamercoder215.mcsurvivors.MCSCore;
+import me.gamercoder215.chambertrials.CTCore;
 import org.bukkit.Location;
 import org.bukkit.Statistic;
 import org.bukkit.block.Block;
@@ -20,9 +20,9 @@ import java.util.stream.Stream;
 
 public class RaceEvents implements Listener {
 
-    private MCSCore plugin;
+    private CTCore plugin;
 
-    public RaceEvents(@NotNull MCSCore plugin) {
+    public RaceEvents(@NotNull CTCore plugin) {
         this.plugin = plugin;
         plugin.getServer().getPluginManager().registerEvents(this, plugin);
     }
