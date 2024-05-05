@@ -8,9 +8,9 @@
     <artifactId>mcsurvivors-core</artifactId>
     <version>10</version>
 
-    <name>MCSCore</name>
-    <description>Core Plugin used in MC Suvivors</description>
-    <url>https://github.com/GamerCoder215/MCSurvivorsCore/</url>
+    <name>ChamberTrials</name>
+    <description>Core Plugin used in Chamber Trials</description>
+    <url>https://github.com/gmitch215/MCSurvivorsCore/</url>
 
 
     <properties>
@@ -19,7 +19,7 @@
         <maven.compiler.target>${java.version}</maven.compiler.target>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 
-        <minecraft.version>1.20.2-R0.1-SNAPSHOT</minecraft.version>
+        <minecraft.version>1.20.4-R0.1-SNAPSHOT</minecraft.version>
         <lamp.version>3.2.1</lamp.version>
     </properties>
 
@@ -163,6 +163,12 @@
             <artifactId>annotations</artifactId>
             <version>24.1.0</version>
             <scope>provided</scope>
+        </dependency>
+        <dependency>
+            <groupId>io.github.skytasul</groupId>
+            <artifactId>glowingentities</artifactId>
+            <version>1.3.2</version>
+            <scope>compile</scope>
         </dependency>
     </dependencies>
 
